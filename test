@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老師課表查詢系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: none;
+        }
+        
+        .panel.active {
+            display: block;
+        }
+        
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .teacher-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .teacher-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+        
+        .day {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .slots {
+            color: #555;
+        }
+        
+        .query-section {
+            text-align: center;
+        }
+        
+        .query-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .time-slot-btn {
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .time-slot-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .time-slot-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+        
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .free-result {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .busy-result {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+        
+        .result-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .teacher-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .teacher-tag {
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .teacher-tag.free {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .teacher-tag.busy {
+            background: #f44336;
+            color: white;
+        }
+        
+        .add-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .slots-input {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        
+        .slot-checkbox {
+            display: none;
+        }
+        
+        .slot-label {
+            padding: 10px;
+            text-align: center;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        
+        .slot-checkbox:checked + .slot-label {
+            background: #667eea;
+            color: white;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 老師課表查詢系統</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('view')">📋 查看課表</button>
+            <button class="tab-btn" onclick="showTab('query')">🔍 查詢空堂</button>
+            <button class="tab-btn" onclick="showTab('add')">➕ 新增老師</button>
+        </div>
+        
+        <!-- 查看課表 -->
+        <div id="view" class="panel active">
+            <div class="teacher-grid" id="teacherGrid"></div>
+        </div>
+        
+        <!-- 查詢空堂 -->
+        <div id="query" class="panel">
+            <div class="query-section">
+                <h2>查詢空堂老師</h2>
+                
+                <div style="background:#f8f9fa;padding:20px;border-radius:15px;margin-bottom:20px;">
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label>選擇星期</label>
+                        <select id="queryDay" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                            <option value="週一">週一</option>
+                            <option value="週二">週二</option>
+                            <option value="週三">週三</option>
+                            <option value="週四">週四</option>
+                            <option value="週五">週五</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display:flex;gap:20px;align-items:center;justify-content:center;">
+                        <div class="form-group" style="margin-bottom:0;flex:1;">
+                            <label>從第</label>
+                            <select id="queryStart" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                                <option value="1">第 1 節</option>
+                                <option value="2">第 2 節</option>
+                                <option value="3">第 3 節</option>
+                                <option value="4">第 4 節</option>
+                                <option value="5">第 5 節</option>
+                                <option value="6">第 6 節</option>
+                                <option value="7">第 7 節</option>
+                                <option value="8">第 8 節</option>
+                            </select>
+                        </div>
+                        <span style="font-size:18px;font-weight:bold;">到</span>
+                        <div class="form-group" style="margin-bottom:0;flex:1;">
+                            <label>第</label>
+                            <select id="queryEnd" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                                <option value="1">第 1 節</option>
+                                <option value="2" selected>第 2 節</option>
+                                <option value="3">第 3 節</option>
+                                <option value="4">第 4 節</option>
+                                <option value="5">第 5 節</option>
+                                <option value="6">第 6 節</option>
+                                <option value="7">第 7 節</option>
+                                <option value="8">第 8 節</option>
+                            </select>
+                        </div>
+                        <span style="font-size:18px;font-weight:bold;">節</span>
+                    </div>
+                </div>
+                
+                <button class="submit-btn" onclick="queryFreeTeachers()">🔍 查詢空堂老師</button>
+                
+                <div id="queryResult"></div>
+            </div>
+        </div>
+        
+        <!-- 新增老師 -->
+        <div id="add" class="panel">
+            <div class="add-form">
+                <div id="addMessage"></div>
+                <div class="form-group">
+                    <label>老師姓名</label>
+                    <input type="text" id="teacherName" placeholder="輸入老師姓名">
+                </div>
+                <div class="form-group">
+                    <label>選擇有課的時段</label>
+                    <div class="slots-input" id="slotsInput"></div>
+                </div>
+                <button class="submit-btn" onclick="addTeacher()">儲存課表</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 載入課表資料
+        let scheduleData = {};
+        
+        const timeSlots = [
+            "週一 1-2", "週一 3-4", "週一 5-6", "週一 7-8",
+            "週二 1-2", "週二 3-4", "週二 5-6", "週二 7-8",
+            "週三 1-2", "週三 3-4", "週三 5-6", "週三 7-8",
+            "週四 1-2", "週四 3-4", "週四 5-6", "週四 7-8",
+            "週五 1-2", "週五 3-4", "週五 5-6", "週五 7-8"
+        ];
+        
+        // 讀取 JSON 資料
+        async function loadData() {
+            try {
+                const response = await fetch('teacher_schedule.json');
+                scheduleData = await response.json();
+            } catch (e) {
+                // 如果 fetch 失敗，直接嵌入資料
+                scheduleData = {"沈添賜":["週二 8-9","週四 2","週四 3","週四 4"],"鄭文源":["週一 1-2","週一 5-6","週二 3-4","週二 5-6","週二 7","週三 1-2","週四 2","週四 5-6"],"江培成":["週二 3-4"],"劉啟文":["週一 5-6","週一 7","週二 3-4","週四 2-3","週四 4-5","週四 6"],"潘柏全":["週二 6-7","週二 8","週四 5-6","週四 7"],"周靜娟":["週一 5-6","週一 7","週二 2-3","週二 4-5","週二 6-7","週二 8","週三 1-2","週三 3-4","週四 2-3","週四 4"],"顏培仁":["週一 5-6","週一 7-8","週二 2-3","週二 4-5","週二 6","週三 2-3","週三 4","週四 2-3","週四 4-5","週四 6-7"]};
+            }
+            renderAll();
+        }
+        
+        // 渲染所有內容
+        function renderAll() {
+            renderTeacherGrid();
+            renderTimeSlotsGrid();
+            renderSlotsInput();
+        }
+        
+        // 渲染老師課表卡片
+        function renderTeacherGrid() {
+            const grid = document.getElementById('teacherGrid');
+            const teachers = Object.keys(scheduleData);
+            
+            if (teachers.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;width:100%;color:#666;">尚無課表資料</p>';
+                return;
+            }
+            
+            grid.innerHTML = teachers.map(name => {
+                const slots = scheduleData[name] || [];
+                const scheduleByDay = {};
+                
+                slots.forEach(slot => {
+                    const day = slot.split(' ')[0];
+                    if (!scheduleByDay[day]) scheduleByDay[day] = [];
+                    scheduleByDay[day].push(slot.split(' ')[1]);
+                });
+                
+                let scheduleHtml = '';
+                const dayOrder = ['週一', '週二', '週三', '週四', '週五'];
+                dayOrder.forEach(day => {
+                    if (scheduleByDay[day]) {
+                        scheduleHtml += `<div class="schedule-item"><span class="day">${day}</span><span class="slots">${scheduleByDay[day].join(', ')}</span></div>`;
+                    }
+                });
+                
+                return `
+                    <div class="teacher-card">
+                        <div class="teacher-name">${name}</div>
+                        ${scheduleHtml || '<p style="color:#888;">(空堂)</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 渲染時段選擇格子（查詢用）
+        function renderTimeSlotsGrid() {
+            const grid = document.getElementById('timeSlotsGrid');
+            grid.innerHTML = timeSlots.map((slot, i) => `
+                <button class="time-slot-btn" onclick="toggleSlot(this)" data-slot="${slot}">${slot}</button>
+            `).join('');
+        }
+        
+        // 渲染時段選擇（新增用）
+        function renderSlotsInput() {
+            const container = document.getElementById('slotsInput');
+            container.innerHTML = timeSlots.map((slot, i) => `
+                <input type="checkbox" class="slot-checkbox" id="slot${i}" value="${slot}">
+                <label class="slot-label" for="slot${i}">${slot}</label>
+            `).join('');
+        }
+        
+        // 切換 Tab
+        function showTab(tabId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // 切換時段選擇
+        function toggleSlot(btn) {
+            btn.classList.toggle('selected');
+        }
+        
+        // 查詢空堂老師
+        function queryFreeTeachers() {
+            const day = document.getElementById('queryDay').value;
+            const start = parseInt(document.getElementById('queryStart').value);
+            const end = parseInt(document.getElementById('queryEnd').value);
+            
+            if (start > end) {
+                showMessage('queryResult', '起始節次不能大於結束節次', 'error');
+                return;
+            }
+            
+            // 產生查詢時段陣列
+            const selected = [];
+            for (let i = start; i <= end; i++) {
+                selected.push(`${day} ${i}`);
+            }
+            
+            const allTeachers = Object.keys(scheduleData);
+            const busyTeachers = new Set();
+            const freeTeachers = new Set(allTeachers);
+            
+            allTeachers.forEach(teacher => {
+                const slots = scheduleData[teacher] || [];
+                selected.forEach(slot => {
+                    // 檢查該老師是否有任何重疊的時段
+                    const slotDay = slot.split(' ')[0];
+                    const slotPeriod = parseInt(slot.split(' ')[1]);
+                    
+                    slots.forEach(s => {
+                        const sDay = s.split(' ')[0];
+                        const sPeriods = s.split(' ')[1].match(/\d+/g);
+                        if (sDay === slotDay && sPeriods) {
+                            sPeriods.forEach(p => {
+                                if (parseInt(p) === slotPeriod) {
+                                    busyTeachers.add(teacher);
+                                    freeTeachers.delete(teacher);
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+            
+            const timeRange = `週一至週五 ${start}-${end}`;
+            const resultDiv = document.getElementById('queryResult');
+            resultDiv.innerHTML = `
+                <div class="result-box free-result">
+                    <div class="result-title">✅ 空堂老師 (${day} 第${start}-${end}節)</div>
+                    <div class="teacher-list">
+                        ${freeTeachers.size > 0 ? 
+                            Array.from(freeTeachers).map(t => `<span class="teacher-tag free">${t}</span>`).join('') : 
+                            '<span>全部老師都有課</span>'}
+                    </div>
+                </div>
+                <div class="result-box busy-result" style="margin-top:15px;">
+                    <div class="result-title">❌ 有課老師</div>
+                    <div class="teacher-list">
+                        ${busyTeachers.size > 0 ? 
+                            Array.from(busyTeachers).map(t => `<span class="teacher-tag busy">${t}</span>`).join('') : 
+                            '<span>無</span>'}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 新增老師
+        function addTeacher() {
+            const name = document.getElementById('teacherName').value.trim();
+            const selectedSlots = Array.from(document.querySelectorAll('.slot-checkbox:checked'))
+                .map(cb => cb.value);
+            
+            if (!name) {
+                showMessage('addMessage', '請輸入老師姓名', 'error');
+                return;
+            }
+            
+            if (selectedSlots.length === 0) {
+                showMessage('addMessage', '請至少選擇一個時段', 'error');
+                return;
+            }
+            
+            scheduleData[name] = selectedSlots;
+            
+            // 儲存到 localStorage（因為無法直接寫入檔案）
+            localStorage.setItem('teacherSchedule', JSON.stringify(scheduleData));
+            
+            showMessage('addMessage', `✅ 已儲存 ${name} 的課表`, 'success');
+            document.getElementById('teacherName').value = '';
+            document.querySelectorAll('.slot-checkbox').forEach(cb => cb.checked = false);
+            
+            renderTeacherGrid();
+        }
+        
+        // 顯示訊息
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => el.innerHTML = '', 3000);
+        }
+        
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>
