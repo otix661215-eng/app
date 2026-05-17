@@ -241,6 +241,58 @@
             background: #f44336;
             color: white;
         }
+
+        .busy-detail-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+
+        .busy-detail-card .busy-teacher-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #c62828;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #ffcdd2;
+        }
+
+        .busy-detail-card .busy-class-item {
+            display: flex;
+            align-items: baseline;
+            padding: 4px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
+        }
+
+        .busy-detail-card .busy-class-item:last-child {
+            border-bottom: none;
+        }
+
+        .busy-detail-card .busy-period {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 70px;
+            margin-right: 8px;
+        }
+
+        .busy-detail-card .busy-course {
+            font-weight: bold;
+            color: #333;
+            margin-right: 6px;
+        }
+
+        .busy-detail-card .busy-info {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .busy-list {
+            margin-top: 10px;
+        }
         
         .add-form {
             max-width: 500px;
@@ -1964,6 +2016,57 @@
                 });
             });
             
+            // Build busy teacher detail cards
+            const sortedBusy = Array.from(busyTeachers).sort();
+            let busyCardsHtml = '';
+            sortedBusy.forEach(teacher => {
+                const data = scheduleData[teacher];
+                // Collect all slots for this teacher on the selected day
+                const daySlots = [];
+                const dayStr = day;
+                if (data && !Array.isArray(data)) {
+                    // New format: { "週二 3": { course, class, room } }
+                    Object.keys(data).forEach(slot => {
+                        if (slot.startsWith(dayStr)) {
+                            const detail = data[slot];
+                            const periodMatch = slot.match(/週[一二三四五六日]\s+(\d+)/);
+                            const period = periodMatch ? periodMatch[1] : '';
+                            daySlots.push({
+                                slot: slot,
+                                period: parseInt(period),
+                                course: detail.course || '',
+                                classGroup: detail.class || '',
+                                room: detail.room || ''
+                            });
+                        }
+                    });
+                } else if (data && Array.isArray(data)) {
+                    // Old format: ["週二 3-4", ...]
+                    data.forEach(slot => {
+                        if (slot.startsWith(dayStr)) {
+                            daySlots.push({ slot: slot, period: 0, course: '', classGroup: '', room: '' });
+                        }
+                    });
+                }
+                // Sort by period
+                daySlots.sort((a, b) => a.period - b.period);
+                
+                let slotsHtml = '';
+                if (daySlots.length > 0) {
+                    slotsHtml = daySlots.map(s => {
+                        const periodLabel = s.period ? `第${s.period}節` : s.slot;
+                        const coursePart = s.course ? `<span class="busy-course">${s.course}</span>` : '';
+                        const infoParts = [];
+                        if (s.classGroup) infoParts.push(s.classGroup);
+                        if (s.room) infoParts.push(s.room);
+                        const infoPart = infoParts.length > 0 ? `<span class="busy-info">${infoParts.join(' | ')}</span>` : '';
+                        return `<div class="busy-class-item"><span class="busy-period">${periodLabel}</span>${coursePart}${infoPart}</div>`;
+                    }).join('');
+                }
+                
+                busyCardsHtml += `<div class="busy-detail-card"><div class="busy-teacher-name">👩‍🏫 ${teacher}</div>${slotsHtml}</div>`;
+            });
+
             const resultDiv = document.getElementById('queryResult');
             resultDiv.innerHTML = `
                 <div class="result-box free-result">
@@ -1975,14 +2078,9 @@
                     </div>
                 </div>
                 <div class="result-box busy-result" style="margin-top:15px;">
-                    <div class="result-title">❌ 有課老師</div>
-                    <div class="teacher-list">
-                        ${busyTeachers.size > 0 ? 
-                            Array.from(busyTeachers).map(t => {
-                                const courses = busyDetails[t] ? [...new Set(busyDetails[t])].join(', ') : '';
-                                return `<span class="teacher-tag busy">${t}${courses ? '<br><small>'+courses+'</small>' : ''}</span>`;
-                            }).join('') : 
-                            '<span>無</span>'}
+                    <div class="result-title">📋 有課老師的 ${day} 課表</div>
+                    <div class="busy-list">
+                        ${busyTeachers.size > 0 ? busyCardsHtml : '<span style="color:#888">無</span>'}
                     </div>
                 </div>
             `;
