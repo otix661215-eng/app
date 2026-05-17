@@ -501,6 +501,8 @@
                     <strong>📥 匯入方式</strong><br>
                     請先執行 <code>python fetch_teacher.py 老師姓名</code> 取得 JSON 檔案，<br>
                     然後將 JSON 內容貼到下方，或直接上傳 <code>teacher_schedule.json</code> 檔案。<br><br>
+                    <strong>💡 雲端上傳</strong>：每次操作後會自動下載新版 HTML，<br>
+                    將下載的 <code>schedule_ui.html</code> 上傳到雲端即可更新資料！<br><br>
                     <strong>支援格式：</strong><br>
                     • 新格式（含課程資訊）：<code>{"楊信佳": {"週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓204"}}}</code><br>
                     • 舊格式（時段列表）：<code>{"沈添賜": ["週二 8-9","週四 2"]}</code>
@@ -629,7 +631,7 @@
                 const response = await fetch('teacher_schedule.json');
                 scheduleData = await response.json();
             } catch (e) {
-                // 內嵌備用資料
+                // 內嵌資料開始
                 scheduleData = {
                     "沈添賜": ["週二 8-9","週四 2","週四 3","週四 4"],
                     "鄭文源": ["週一 1-2","週一 5-6","週二 3-4","週二 5-6","週二 7","週三 1-2","週四 2","週四 5-6"],
@@ -637,14 +639,78 @@
                     "劉啟文": ["週一 5-6","週一 7","週二 3-4","週四 2-3","週四 4-5","週四 6"],
                     "潘柏全": ["週二 6-7","週二 8","週四 5-6","週四 7"],
                     "周靜娟": ["週一 5-6","週一 7","週二 2-3","週二 4-5","週二 6-7","週二 8","週三 1-2","週三 3-4","週四 2-3","週四 4"],
-                    "顏培仁": ["週一 5-6","週一 7-8","週二 2-3","週二 4-5","週二 6","週三 2-3","週三 4","週四 2-3","週四 4-5","週四 6-7"]
+                    "顏培仁": ["週一 5-6","週一 7-8","週二 2-3","週二 4-5","週二 6","週三 2-3","週三 4","週四 2-3","週四 4-5","週四 6-7"],
+                    "楊信佳": {
+                        "週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓二樓204教室"},
+                        "週二 3": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓二樓204教室"},
+                        "週二 4": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓二樓204教室"},
+                        "週二 5": {"course":"數位系統設計","class":"攜子僑二甲","room":"明明樓五樓505教室"},
+                        "週三 3": {"course":"數位系統設計","class":"攜子僑二甲","room":"明明樓五樓503教室"},
+                        "週三 4": {"course":"數位系統設計","class":"攜子僑二甲","room":"明明樓五樓503教室"},
+                        "週四 2": {"course":"進階積體電路控制","class":"碩子一甲","room":"電子大樓三樓308積體電路設計實驗室"},
+                        "週四 3": {"course":"進階積體電路控制","class":"碩子一甲","room":"電子大樓三樓308積體電路設計實驗室"},
+                        "週四 4": {"course":"進階積體電路控制","class":"碩子一甲","room":"電子大樓三樓308積體電路設計實驗室"},
+                        "週四 5": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
+                        "週四 6": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
+                        "週四 7": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
+                        "週四 8": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
+                        "週六 4": {"course":"論文撰寫","class":"碩子二甲","room":""}
+                    }
                 };
+                // 內嵌資料結束
             }
             renderAll();
         }
         
         function saveData() {
             localStorage.setItem('teacherSchedule', JSON.stringify(scheduleData));
+            // 更新內嵌資料標記，方便下載
+            updateEmbeddedData();
+        }
+        
+        // 產生含最新資料的 HTML 並下載
+        function updateEmbeddedData() {
+            // 自動下載新版 HTML（資料已內嵌）
+            downloadUpdatedHTML();
+        }
+        
+        function downloadUpdatedHTML() {
+            const currentHTML = document.documentElement.outerHTML;
+            // 找到內嵌資料的區段並替換
+            const dataStr = JSON.stringify(scheduleData, null, 16);
+            
+            // 替換 scheduleData = {...} 為最新資料
+            let newHTML = '<!DOCTYPE html>\n' + currentHTML;
+            
+            // 用正則替換內嵌資料區段
+            // 從 "// 內嵌資料開始" 到 "// 內嵌資料結束"
+            const startMarker = '// 內嵌資料開始';
+            const endMarker = '// 內嵌資料結束';
+            const startIdx = newHTML.indexOf(startMarker);
+            const endIdx = newHTML.indexOf(endMarker);
+            
+            if (startIdx >= 0 && endIdx >= 0) {
+                const before = newHTML.substring(0, startIdx);
+                const after = newHTML.substring(endIdx + endMarker.length);
+                const embedded = `${startMarker}\n                scheduleData = ${dataStr};\n                ${endMarker}`;
+                newHTML = before + embedded + after;
+            } else {
+                // 如果找不到標記，替換 loadData 裡的 fallback
+                const fallbackPattern = /scheduleData = \{[\s\S]*?\};\s*\/\/ 內嵌資料結束/;
+                if (fallbackPattern.test(newHTML)) {
+                    newHTML = newHTML.replace(fallbackPattern, `scheduleData = ${dataStr};\n                // 內嵌資料結束`);
+                }
+            }
+            
+            const blob = new Blob([newHTML], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'schedule_ui.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
         
         // 渲染所有內容
