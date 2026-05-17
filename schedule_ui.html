@@ -74,7 +74,7 @@
         
         .teacher-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
@@ -84,6 +84,7 @@
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
         }
         
         .teacher-name {
@@ -93,6 +94,39 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .card-actions button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #5a6fd6;
+        }
+        
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
         }
         
         .schedule-item {
@@ -109,10 +143,23 @@
         .day {
             font-weight: bold;
             color: #667eea;
+            min-width: 40px;
         }
         
         .slots {
             color: #555;
+            flex: 1;
+        }
+        
+        .slot-detail {
+            font-size: 0.85em;
+            color: #777;
+            margin-left: 8px;
+        }
+        
+        .course-name {
+            color: #333;
+            font-weight: bold;
         }
         
         .query-section {
@@ -212,17 +259,25 @@
             color: #333;
         }
         
-        .form-group input {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
             border-radius: 10px;
             font-size: 16px;
+            font-family: inherit;
         }
         
-        .form-group input:focus {
+        .form-group input:focus, .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: "Consolas", monospace;
+            font-size: 14px;
         }
         
         .slots-input {
@@ -267,6 +322,14 @@
             transform: scale(1.02);
         }
         
+        .submit-btn.secondary {
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+        }
+        
+        .submit-btn.warning {
+            background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+        }
+        
         .message {
             padding: 15px;
             border-radius: 10px;
@@ -283,6 +346,76 @@
             background: #f8d7da;
             color: #721c24;
         }
+        
+        .import-hint {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .import-hint code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .confirm-dialog {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .confirm-box {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .confirm-box h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .confirm-box p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .confirm-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .confirm-btns button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background: #ddd;
+            color: #333;
+        }
+        
+        .btn-confirm-del {
+            background: #f44336;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -292,7 +425,8 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('view')">📋 查看課表</button>
             <button class="tab-btn" onclick="showTab('query')">🔍 查詢空堂</button>
-            <button class="tab-btn" onclick="showTab('add')">➕ 新增老師</button>
+            <button class="tab-btn" onclick="showTab('import')">📥 匯入資料</button>
+            <button class="tab-btn" onclick="showTab('add')">➕ 手動新增</button>
         </div>
         
         <!-- 查看課表 -->
@@ -314,6 +448,7 @@
                             <option value="週三">週三</option>
                             <option value="週四">週四</option>
                             <option value="週五">週五</option>
+                            <option value="週六">週六</option>
                         </select>
                     </div>
                     
@@ -329,6 +464,7 @@
                                 <option value="6">第 6 節</option>
                                 <option value="7">第 7 節</option>
                                 <option value="8">第 8 節</option>
+                                <option value="9">第 9 節</option>
                             </select>
                         </div>
                         <span style="font-size:18px;font-weight:bold;">到</span>
@@ -343,6 +479,7 @@
                                 <option value="6">第 6 節</option>
                                 <option value="7">第 7 節</option>
                                 <option value="8">第 8 節</option>
+                                <option value="9">第 9 節</option>
                             </select>
                         </div>
                         <span style="font-size:18px;font-weight:bold;">節</span>
@@ -355,7 +492,39 @@
             </div>
         </div>
         
-        <!-- 新增老師 -->
+        <!-- 匯入資料 -->
+        <div id="import" class="panel">
+            <div class="add-form">
+                <div id="importMessage"></div>
+                
+                <div class="import-hint">
+                    <strong>📥 匯入方式</strong><br>
+                    請先執行 <code>python fetch_teacher.py 老師姓名</code> 取得 JSON 檔案，<br>
+                    然後將 JSON 內容貼到下方，或直接上傳 <code>teacher_schedule.json</code> 檔案。<br><br>
+                    <strong>支援格式：</strong><br>
+                    • 新格式（含課程資訊）：<code>{"楊信佳": {"週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓204"}}}</code><br>
+                    • 舊格式（時段列表）：<code>{"沈添賜": ["週二 8-9","週四 2"]}</code>
+                </div>
+                
+                <div class="form-group">
+                    <label>貼上 JSON 內容</label>
+                    <textarea id="jsonInput" placeholder='{"楊信佳": {"週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓204教室"}}}'></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>或上傳 JSON 檔案</label>
+                    <input type="file" id="jsonFile" accept=".json" style="padding:8px;">
+                </div>
+                
+                <button class="submit-btn secondary" onclick="importJSON()">📥 匯入課表資料</button>
+                
+                <div style="margin-top:20px;text-align:center;">
+                    <button class="submit-btn warning" onclick="clearAllData()" style="margin-top:10px;">🗑️ 清除所有資料</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 手動新增 -->
         <div id="add" class="panel">
             <div class="add-form">
                 <div id="addMessage"></div>
@@ -372,34 +541,115 @@
         </div>
     </div>
 
+    <!-- 確認刪除對話框 -->
+    <div id="confirmDialog" class="confirm-dialog" style="display:none;">
+        <div class="confirm-box">
+            <h3>⚠️ 確認刪除</h3>
+            <p id="confirmText">確定要刪除嗎？</p>
+            <div class="confirm-btns">
+                <button class="btn-cancel" onclick="closeConfirm()">取消</button>
+                <button class="btn-confirm-del" id="confirmAction">刪除</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 載入課表資料
+        // 課表資料 - 支援兩種格式:
+        // 新格式: { "老師名": { "週一 2": { course, class, room }, ... } }
+        // 舊格式: { "老師名": ["週一 1-2", "週二 3-4", ...] }
         let scheduleData = {};
         
         const timeSlots = [
-            "週一 1-2", "週一 3-4", "週一 5-6", "週一 7-8",
-            "週二 1-2", "週二 3-4", "週二 5-6", "週二 7-8",
-            "週三 1-2", "週三 3-4", "週三 5-6", "週三 7-8",
-            "週四 1-2", "週四 3-4", "週四 5-6", "週四 7-8",
-            "週五 1-2", "週五 3-4", "週五 5-6", "週五 7-8"
+            "週一 1", "週一 2", "週一 3", "週一 4", "週一 5", "週一 6", "週一 7", "週一 8",
+            "週二 1", "週二 2", "週二 3", "週二 4", "週二 5", "週二 6", "週二 7", "週二 8",
+            "週三 1", "週三 2", "週三 3", "週三 4", "週三 5", "週三 6", "週三 7", "週三 8",
+            "週四 1", "週四 2", "週四 3", "週四 4", "週四 5", "週四 6", "週四 7", "週四 8",
+            "週五 1", "週五 2", "週五 3", "週五 4", "週五 5", "週五 6", "週五 7", "週五 8"
         ];
         
-        // 讀取 JSON 資料
+        const dayOrder = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+        
+        // 判斷是否為新格式（物件含 course 屬性）
+        function isNewFormat(data) {
+            if (typeof data !== 'object') return false;
+            for (let key in data) {
+                if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
+                    // 檢查第一個值是否含 course 屬性
+                    for (let slot in data[key]) {
+                        if (data[key][slot] && typeof data[key][slot] === 'object' && data[key][slot].course) {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            return false;
+        }
+        
+        // 從課表資料取得某老師的所有時段（統一處理新舊格式）
+        function getSlots(teacher) {
+            const data = scheduleData[teacher];
+            if (!data) return [];
+            
+            if (Array.isArray(data)) {
+                // 舊格式: ["週一 1-2", "週二 3-4"]
+                return data;
+            }
+            
+            if (typeof data === 'object') {
+                // 新格式: { "週一 2": {course, class, room} }
+                return Object.keys(data);
+            }
+            
+            return [];
+        }
+        
+        // 取得某時段的詳細資訊
+        function getSlotDetail(teacher, slot) {
+            const data = scheduleData[teacher];
+            if (!data || Array.isArray(data)) return null;
+            return data[slot] || null;
+        }
+        
+        // 讀取資料
         async function loadData() {
+            // 先嘗試 localStorage
+            const saved = localStorage.getItem('teacherSchedule');
+            if (saved) {
+                try {
+                    scheduleData = JSON.parse(saved);
+                    renderAll();
+                    return;
+                } catch(e) {}
+            }
+            
+            // 嘗試 fetch JSON 檔案
             try {
                 const response = await fetch('teacher_schedule.json');
                 scheduleData = await response.json();
             } catch (e) {
-                // 如果 fetch 失敗，直接嵌入資料
-                scheduleData = {"沈添賜":["週二 8-9","週四 2","週四 3","週四 4"],"鄭文源":["週一 1-2","週一 5-6","週二 3-4","週二 5-6","週二 7","週三 1-2","週四 2","週四 5-6"],"江培成":["週二 3-4"],"劉啟文":["週一 5-6","週一 7","週二 3-4","週四 2-3","週四 4-5","週四 6"],"潘柏全":["週二 6-7","週二 8","週四 5-6","週四 7"],"周靜娟":["週一 5-6","週一 7","週二 2-3","週二 4-5","週二 6-7","週二 8","週三 1-2","週三 3-4","週四 2-3","週四 4"],"顏培仁":["週一 5-6","週一 7-8","週二 2-3","週二 4-5","週二 6","週三 2-3","週三 4","週四 2-3","週四 4-5","週四 6-7"]};
+                // 內嵌備用資料
+                scheduleData = {
+                    "沈添賜": ["週二 8-9","週四 2","週四 3","週四 4"],
+                    "鄭文源": ["週一 1-2","週一 5-6","週二 3-4","週二 5-6","週二 7","週三 1-2","週四 2","週四 5-6"],
+                    "江培成": ["週二 3-4"],
+                    "劉啟文": ["週一 5-6","週一 7","週二 3-4","週四 2-3","週四 4-5","週四 6"],
+                    "潘柏全": ["週二 6-7","週二 8","週四 5-6","週四 7"],
+                    "周靜娟": ["週一 5-6","週一 7","週二 2-3","週二 4-5","週二 6-7","週二 8","週三 1-2","週三 3-4","週四 2-3","週四 4"],
+                    "顏培仁": ["週一 5-6","週一 7-8","週二 2-3","週二 4-5","週二 6","週三 2-3","週三 4","週四 2-3","週四 4-5","週四 6-7"]
+                };
             }
             renderAll();
+        }
+        
+        function saveData() {
+            localStorage.setItem('teacherSchedule', JSON.stringify(scheduleData));
         }
         
         // 渲染所有內容
         function renderAll() {
             renderTeacherGrid();
-            renderTimeSlotsGrid();
             renderSlotsInput();
         }
         
@@ -409,46 +659,56 @@
             const teachers = Object.keys(scheduleData);
             
             if (teachers.length === 0) {
-                grid.innerHTML = '<p style="text-align:center;width:100%;color:#666;">尚無課表資料</p>';
+                grid.innerHTML = '<p style="text-align:center;width:100%;color:#666;">尚無課表資料，請至「匯入資料」新增</p>';
                 return;
             }
             
             grid.innerHTML = teachers.map(name => {
-                const slots = scheduleData[name] || [];
+                const slots = getSlots(name);
                 const scheduleByDay = {};
                 
                 slots.forEach(slot => {
-                    const day = slot.split(' ')[0];
+                    const parts = slot.split(' ');
+                    const day = parts[0];
+                    const period = parts.slice(1).join(' ');
                     if (!scheduleByDay[day]) scheduleByDay[day] = [];
-                    scheduleByDay[day].push(slot.split(' ')[1]);
+                    
+                    const detail = getSlotDetail(name, slot);
+                    scheduleByDay[day].push({ period, detail });
                 });
                 
                 let scheduleHtml = '';
-                const dayOrder = ['週一', '週二', '週三', '週四', '週五'];
                 dayOrder.forEach(day => {
                     if (scheduleByDay[day]) {
-                        scheduleHtml += `<div class="schedule-item"><span class="day">${day}</span><span class="slots">${scheduleByDay[day].join(', ')}</span></div>`;
+                        const items = scheduleByDay[day].map(item => {
+                            let html = item.period;
+                            if (item.detail && item.detail.course) {
+                                html += ` <span class="course-name">${item.detail.course}</span>`;
+                                if (item.detail.class) html += ` <span class="slot-detail">${item.detail.class}</span>`;
+                                if (item.detail.room) html += ` <span class="slot-detail">${item.detail.room}</span>`;
+                            }
+                            return html;
+                        }).join('<br>');
+                        scheduleHtml += `<div class="schedule-item"><span class="day">${day}</span><span class="slots">${items}</span></div>`;
                     }
                 });
                 
                 return `
                     <div class="teacher-card">
-                        <div class="teacher-name">${name}</div>
+                        <div class="teacher-name">
+                            ${name}
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('${name}')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('${name}')">🗑️</button>
+                            </div>
+                        </div>
                         ${scheduleHtml || '<p style="color:#888;">(空堂)</p>'}
                     </div>
                 `;
             }).join('');
         }
         
-        // 渲染時段選擇格子（查詢用）
-        function renderTimeSlotsGrid() {
-            const grid = document.getElementById('timeSlotsGrid');
-            grid.innerHTML = timeSlots.map((slot, i) => `
-                <button class="time-slot-btn" onclick="toggleSlot(this)" data-slot="${slot}">${slot}</button>
-            `).join('');
-        }
-        
-        // 渲染時段選擇（新增用）
+        // 渲染時段選擇（手動新增用）
         function renderSlotsInput() {
             const container = document.getElementById('slotsInput');
             container.innerHTML = timeSlots.map((slot, i) => `
@@ -465,11 +725,6 @@
             event.target.classList.add('active');
         }
         
-        // 切換時段選擇
-        function toggleSlot(btn) {
-            btn.classList.toggle('selected');
-        }
-        
         // 查詢空堂老師
         function queryFreeTeachers() {
             const day = document.getElementById('queryDay').value;
@@ -481,7 +736,6 @@
                 return;
             }
             
-            // 產生查詢時段陣列
             const selected = [];
             for (let i = start; i <= end; i++) {
                 selected.push(`${day} ${i}`);
@@ -490,22 +744,30 @@
             const allTeachers = Object.keys(scheduleData);
             const busyTeachers = new Set();
             const freeTeachers = new Set(allTeachers);
+            const busyDetails = {};  // teacher -> [busy slots with details]
             
             allTeachers.forEach(teacher => {
-                const slots = scheduleData[teacher] || [];
+                const slots = getSlots(teacher);
+                let isBusy = false;
+                
                 selected.forEach(slot => {
-                    // 檢查該老師是否有任何重疊的時段
                     const slotDay = slot.split(' ')[0];
                     const slotPeriod = parseInt(slot.split(' ')[1]);
                     
                     slots.forEach(s => {
                         const sDay = s.split(' ')[0];
-                        const sPeriods = s.split(' ')[1].match(/\d+/g);
+                        const sPeriodStr = s.split(' ')[1];
+                        const sPeriods = sPeriodStr.match(/\d+/g);
                         if (sDay === slotDay && sPeriods) {
                             sPeriods.forEach(p => {
                                 if (parseInt(p) === slotPeriod) {
                                     busyTeachers.add(teacher);
                                     freeTeachers.delete(teacher);
+                                    if (!busyDetails[teacher]) busyDetails[teacher] = [];
+                                    const detail = getSlotDetail(teacher, s);
+                                    if (detail && detail.course) {
+                                        busyDetails[teacher].push(detail.course);
+                                    }
                                 }
                             });
                         }
@@ -513,7 +775,6 @@
                 });
             });
             
-            const timeRange = `週一至週五 ${start}-${end}`;
             const resultDiv = document.getElementById('queryResult');
             resultDiv.innerHTML = `
                 <div class="result-box free-result">
@@ -528,14 +789,74 @@
                     <div class="result-title">❌ 有課老師</div>
                     <div class="teacher-list">
                         ${busyTeachers.size > 0 ? 
-                            Array.from(busyTeachers).map(t => `<span class="teacher-tag busy">${t}</span>`).join('') : 
+                            Array.from(busyTeachers).map(t => {
+                                const courses = busyDetails[t] ? [...new Set(busyDetails[t])].join(', ') : '';
+                                return `<span class="teacher-tag busy">${t}${courses ? '<br><small>'+courses+'</small>' : ''}</span>`;
+                            }).join('') : 
                             '<span>無</span>'}
                     </div>
                 </div>
             `;
         }
         
-        // 新增老師
+        // 匯入 JSON
+        function importJSON() {
+            const textarea = document.getElementById('jsonInput');
+            const fileInput = document.getElementById('jsonFile');
+            
+            let jsonText = '';
+            
+            // 優先使用檔案
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    jsonText = e.target.result;
+                    processImport(jsonText);
+                };
+                reader.readAsText(fileInput.files[0]);
+                return;
+            }
+            
+            // 否則使用文字輸入
+            jsonText = textarea.value.trim();
+            if (!jsonText) {
+                showMessage('importMessage', '請貼上 JSON 或上傳檔案', 'error');
+                return;
+            }
+            
+            processImport(jsonText);
+        }
+        
+        function processImport(jsonText) {
+            try {
+                const imported = JSON.parse(jsonText);
+                
+                // 驗證格式
+                if (typeof imported !== 'object' || Array.isArray(imported)) {
+                    showMessage('importMessage', 'JSON 格式錯誤，需為物件', 'error');
+                    return;
+                }
+                
+                // 合併資料
+                let count = 0;
+                for (let name in imported) {
+                    scheduleData[name] = imported[name];
+                    count++;
+                }
+                
+                saveData();
+                renderAll();
+                
+                showMessage('importMessage', `✅ 已匯入 ${count} 位老師的課表（合併至現有資料）`, 'success');
+                document.getElementById('jsonInput').value = '';
+                document.getElementById('jsonFile').value = '';
+                
+            } catch(e) {
+                showMessage('importMessage', `JSON 解析錯誤: ${e.message}`, 'error');
+            }
+        }
+        
+        // 手動新增老師
         function addTeacher() {
             const name = document.getElementById('teacherName').value.trim();
             const selectedSlots = Array.from(document.querySelectorAll('.slot-checkbox:checked'))
@@ -551,10 +872,9 @@
                 return;
             }
             
+            // 舊格式儲存
             scheduleData[name] = selectedSlots;
-            
-            // 儲存到 localStorage（因為無法直接寫入檔案）
-            localStorage.setItem('teacherSchedule', JSON.stringify(scheduleData));
+            saveData();
             
             showMessage('addMessage', `✅ 已儲存 ${name} 的課表`, 'success');
             document.getElementById('teacherName').value = '';
@@ -563,11 +883,65 @@
             renderTeacherGrid();
         }
         
+        // 編輯老師
+        function editTeacher(name) {
+            // 跳到查看課表頁面，顯示完整課表供編輯
+            const slots = getSlots(name);
+            const detail = scheduleData[name];
+            
+            let jsonStr = '';
+            if (typeof detail === 'object' && !Array.isArray(detail)) {
+                jsonStr = JSON.stringify({[name]: detail}, null, 2);
+            } else {
+                jsonStr = JSON.stringify({[name]: detail}, null, 2);
+            }
+            
+            // 切到匯入 tab，並預填 JSON
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('import').classList.add('active');
+            document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            
+            document.getElementById('jsonInput').value = jsonStr;
+            showMessage('importMessage', `✏️ 編輯 ${name} 的課表 — 修改後點「匯入」覆蓋`, 'success');
+        }
+        
+        // 刪除老師
+        function deleteTeacher(name) {
+            document.getElementById('confirmText').textContent = `確定要刪除 ${name} 的課表嗎？`;
+            document.getElementById('confirmDialog').style.display = 'flex';
+            
+            document.getElementById('confirmAction').onclick = function() {
+                delete scheduleData[name];
+                saveData();
+                renderTeacherGrid();
+                closeConfirm();
+            };
+        }
+        
+        function closeConfirm() {
+            document.getElementById('confirmDialog').style.display = 'none';
+        }
+        
+        // 清除所有資料
+        function clearAllData() {
+            document.getElementById('confirmText').textContent = '確定要清除所有課表資料嗎？此操作無法復原！';
+            document.getElementById('confirmDialog').style.display = 'flex';
+            
+            document.getElementById('confirmAction').onclick = function() {
+                scheduleData = {};
+                saveData();
+                renderAll();
+                closeConfirm();
+                showMessage('importMessage', '🗑️ 已清除所有資料', 'success');
+            };
+        }
+        
         // 顯示訊息
         function showMessage(elementId, text, type) {
             const el = document.getElementById(elementId);
             el.innerHTML = `<div class="message ${type}">${text}</div>`;
-            setTimeout(() => el.innerHTML = '', 3000);
+            setTimeout(() => el.innerHTML = '', 4000);
         }
         
         // 初始化
