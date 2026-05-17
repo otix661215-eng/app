@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW"><head>
+<html lang="zh-TW" data-immersive-translate-page-theme="light"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>老師課表查詢系統</title>
@@ -593,7 +593,7 @@
         <!-- 匯入資料 -->
         <div id="import" class="panel active">
             <div class="add-form">
-                <div id="importMessage"></div>
+                <div id="importMessage"><div class="message success">✏️ 編輯 陳肇業 的課表 — 修改後點「匯入」覆蓋</div></div>
                 
                 <div class="import-hint">
                     <strong>📥 匯入方式</strong><br>
@@ -762,10 +762,10 @@
     </div>
 
     <!-- 確認刪除對話框 -->
-    <div id="confirmDialog" class="confirm-dialog" style="display:none;">
+    <div id="confirmDialog" class="confirm-dialog" style="display: none;">
         <div class="confirm-box">
             <h3>⚠️ 確認刪除</h3>
-            <p id="confirmText">確定要刪除嗎？</p>
+            <p id="confirmText">確定要刪除 楊 的課表嗎？</p>
             <div class="confirm-btns">
                 <button class="btn-cancel" onclick="closeConfirm()">取消</button>
                 <button class="btn-confirm-del" id="confirmAction">刪除</button>
@@ -1295,4 +1295,4 @@
         loadData();
     </script>
 
-</body></html>
+<div id="immersive-translate-popup" style="all: initial"></div></body></html>
