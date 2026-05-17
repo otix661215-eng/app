@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
+<html lang="zh-TW"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>老師課表查詢系統</title>
@@ -423,15 +422,114 @@
         <h1>🏫 老師課表查詢系統</h1>
         
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('view')">📋 查看課表</button>
+            <button class="tab-btn" onclick="showTab('view')">📋 查看課表</button>
             <button class="tab-btn" onclick="showTab('query')">🔍 查詢空堂</button>
-            <button class="tab-btn" onclick="showTab('import')">📥 匯入資料</button>
+            <button class="tab-btn active" onclick="showTab('import')">📥 匯入資料</button>
             <button class="tab-btn" onclick="showTab('add')">➕ 手動新增</button>
         </div>
         
         <!-- 查看課表 -->
-        <div id="view" class="panel active">
-            <div class="teacher-grid" id="teacherGrid"></div>
+        <div id="view" class="panel">
+            <div class="teacher-grid" id="teacherGrid">
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            沈添賜
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('沈添賜')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('沈添賜')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週二</span><span class="slots">8-9</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2<br>3<br>4</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            鄭文源
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('鄭文源')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('鄭文源')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週一</span><span class="slots">1-2<br>5-6</span></div><div class="schedule-item"><span class="day">週二</span><span class="slots">3-4<br>5-6<br>7</span></div><div class="schedule-item"><span class="day">週三</span><span class="slots">1-2</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2<br>5-6</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            江培成
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('江培成')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('江培成')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週二</span><span class="slots">3-4</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            劉啟文
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('劉啟文')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('劉啟文')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週一</span><span class="slots">5-6<br>7</span></div><div class="schedule-item"><span class="day">週二</span><span class="slots">3-4</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2-3<br>4-5<br>6</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            潘柏全
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('潘柏全')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('潘柏全')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週二</span><span class="slots">6-7<br>8</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">5-6<br>7</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            周靜娟
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('周靜娟')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('周靜娟')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週一</span><span class="slots">5-6<br>7</span></div><div class="schedule-item"><span class="day">週二</span><span class="slots">2-3<br>4-5<br>6-7<br>8</span></div><div class="schedule-item"><span class="day">週三</span><span class="slots">1-2<br>3-4</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2-3<br>4</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            顏培仁
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('顏培仁')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('顏培仁')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週一</span><span class="slots">5-6<br>7-8</span></div><div class="schedule-item"><span class="day">週二</span><span class="slots">2-3<br>4-5<br>6</span></div><div class="schedule-item"><span class="day">週三</span><span class="slots">2-3<br>4</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2-3<br>4-5<br>6-7</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            楊信佳
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('楊信佳')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('楊信佳')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週二</span><span class="slots">2<br>3<br>4<br>5</span></div><div class="schedule-item"><span class="day">週三</span><span class="slots">3<br>4</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2<br>3<br>4<br>5<br>6<br>7<br>8</span></div>
+                    </div>
+                
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            陳肇業
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('陳肇業')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('陳肇業')">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="schedule-item"><span class="day">週一</span><span class="slots">5<br>6<br>7</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2<br>3<br>4<br>5<br>6<br>7</span></div><div class="schedule-item"><span class="day">週五</span><span class="slots">2<br>3<br>4</span></div>
+                    </div>
+                </div>
         </div>
         
         <!-- 查詢空堂 -->
@@ -472,7 +570,7 @@
                             <label>第</label>
                             <select id="queryEnd" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
                                 <option value="1">第 1 節</option>
-                                <option value="2" selected>第 2 節</option>
+                                <option value="2" selected="">第 2 節</option>
                                 <option value="3">第 3 節</option>
                                 <option value="4">第 4 節</option>
                                 <option value="5">第 5 節</option>
@@ -493,7 +591,7 @@
         </div>
         
         <!-- 匯入資料 -->
-        <div id="import" class="panel">
+        <div id="import" class="panel active">
             <div class="add-form">
                 <div id="importMessage"></div>
                 
@@ -510,7 +608,7 @@
                 
                 <div class="form-group">
                     <label>貼上 JSON 內容</label>
-                    <textarea id="jsonInput" placeholder='{"楊信佳": {"週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓204教室"}}}'></textarea>
+                    <textarea id="jsonInput" placeholder="{&quot;楊信佳&quot;: {&quot;週二 2&quot;: {&quot;course&quot;:&quot;射頻電路設計&quot;,&quot;class&quot;:&quot;碩子一甲&quot;,&quot;room&quot;:&quot;明光樓204教室&quot;}}}"></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -536,7 +634,127 @@
                 </div>
                 <div class="form-group">
                     <label>選擇有課的時段</label>
-                    <div class="slots-input" id="slotsInput"></div>
+                    <div class="slots-input" id="slotsInput">
+                <input type="checkbox" class="slot-checkbox" id="slot0" value="週一 1">
+                <label class="slot-label" for="slot0">週一 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot1" value="週一 2">
+                <label class="slot-label" for="slot1">週一 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot2" value="週一 3">
+                <label class="slot-label" for="slot2">週一 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot3" value="週一 4">
+                <label class="slot-label" for="slot3">週一 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot4" value="週一 5">
+                <label class="slot-label" for="slot4">週一 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot5" value="週一 6">
+                <label class="slot-label" for="slot5">週一 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot6" value="週一 7">
+                <label class="slot-label" for="slot6">週一 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot7" value="週一 8">
+                <label class="slot-label" for="slot7">週一 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot8" value="週二 1">
+                <label class="slot-label" for="slot8">週二 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot9" value="週二 2">
+                <label class="slot-label" for="slot9">週二 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot10" value="週二 3">
+                <label class="slot-label" for="slot10">週二 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot11" value="週二 4">
+                <label class="slot-label" for="slot11">週二 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot12" value="週二 5">
+                <label class="slot-label" for="slot12">週二 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot13" value="週二 6">
+                <label class="slot-label" for="slot13">週二 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot14" value="週二 7">
+                <label class="slot-label" for="slot14">週二 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot15" value="週二 8">
+                <label class="slot-label" for="slot15">週二 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot16" value="週三 1">
+                <label class="slot-label" for="slot16">週三 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot17" value="週三 2">
+                <label class="slot-label" for="slot17">週三 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot18" value="週三 3">
+                <label class="slot-label" for="slot18">週三 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot19" value="週三 4">
+                <label class="slot-label" for="slot19">週三 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot20" value="週三 5">
+                <label class="slot-label" for="slot20">週三 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot21" value="週三 6">
+                <label class="slot-label" for="slot21">週三 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot22" value="週三 7">
+                <label class="slot-label" for="slot22">週三 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot23" value="週三 8">
+                <label class="slot-label" for="slot23">週三 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot24" value="週四 1">
+                <label class="slot-label" for="slot24">週四 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot25" value="週四 2">
+                <label class="slot-label" for="slot25">週四 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot26" value="週四 3">
+                <label class="slot-label" for="slot26">週四 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot27" value="週四 4">
+                <label class="slot-label" for="slot27">週四 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot28" value="週四 5">
+                <label class="slot-label" for="slot28">週四 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot29" value="週四 6">
+                <label class="slot-label" for="slot29">週四 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot30" value="週四 7">
+                <label class="slot-label" for="slot30">週四 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot31" value="週四 8">
+                <label class="slot-label" for="slot31">週四 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot32" value="週五 1">
+                <label class="slot-label" for="slot32">週五 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot33" value="週五 2">
+                <label class="slot-label" for="slot33">週五 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot34" value="週五 3">
+                <label class="slot-label" for="slot34">週五 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot35" value="週五 4">
+                <label class="slot-label" for="slot35">週五 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot36" value="週五 5">
+                <label class="slot-label" for="slot36">週五 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot37" value="週五 6">
+                <label class="slot-label" for="slot37">週五 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot38" value="週五 7">
+                <label class="slot-label" for="slot38">週五 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot39" value="週五 8">
+                <label class="slot-label" for="slot39">週五 8</label>
+            </div>
                 </div>
                 <button class="submit-btn" onclick="addTeacher()">儲存課表</button>
             </div>
@@ -633,30 +851,93 @@
             } catch (e) {
                 // 內嵌資料開始
                 scheduleData = {
-                    "沈添賜": ["週二 8-9","週四 2","週四 3","週四 4"],
-                    "鄭文源": ["週一 1-2","週一 5-6","週二 3-4","週二 5-6","週二 7","週三 1-2","週四 2","週四 5-6"],
-                    "江培成": ["週二 3-4"],
-                    "劉啟文": ["週一 5-6","週一 7","週二 3-4","週四 2-3","週四 4-5","週四 6"],
-                    "潘柏全": ["週二 6-7","週二 8","週四 5-6","週四 7"],
-                    "周靜娟": ["週一 5-6","週一 7","週二 2-3","週二 4-5","週二 6-7","週二 8","週三 1-2","週三 3-4","週四 2-3","週四 4"],
-                    "顏培仁": ["週一 5-6","週一 7-8","週二 2-3","週二 4-5","週二 6","週三 2-3","週三 4","週四 2-3","週四 4-5","週四 6-7"],
-                    "楊信佳": {
-                        "週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓二樓204教室"},
-                        "週二 3": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓二樓204教室"},
-                        "週二 4": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓二樓204教室"},
-                        "週二 5": {"course":"數位系統設計","class":"攜子僑二甲","room":"明明樓五樓505教室"},
-                        "週三 3": {"course":"數位系統設計","class":"攜子僑二甲","room":"明明樓五樓503教室"},
-                        "週三 4": {"course":"數位系統設計","class":"攜子僑二甲","room":"明明樓五樓503教室"},
-                        "週四 2": {"course":"進階積體電路控制","class":"碩子一甲","room":"電子大樓三樓308積體電路設計實驗室"},
-                        "週四 3": {"course":"進階積體電路控制","class":"碩子一甲","room":"電子大樓三樓308積體電路設計實驗室"},
-                        "週四 4": {"course":"進階積體電路控制","class":"碩子一甲","room":"電子大樓三樓308積體電路設計實驗室"},
-                        "週四 5": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
-                        "週四 6": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
-                        "週四 7": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
-                        "週四 8": {"course":"微處理機應用","class":"四國子四甲","room":"明光樓四樓401教室"},
-                        "週六 4": {"course":"論文撰寫","class":"碩子二甲","room":""}
-                    }
-                };
+          "沈添賜": [
+                    "週二 8-9",
+                    "週四 2",
+                    "週四 3",
+                    "週四 4"
+          ],
+          "鄭文源": [
+                    "週一 1-2",
+                    "週一 5-6",
+                    "週二 3-4",
+                    "週二 5-6",
+                    "週二 7",
+                    "週三 1-2",
+                    "週四 2",
+                    "週四 5-6"
+          ],
+          "江培成": [
+                    "週二 3-4"
+          ],
+          "劉啟文": [
+                    "週一 5-6",
+                    "週一 7",
+                    "週二 3-4",
+                    "週四 2-3",
+                    "週四 4-5",
+                    "週四 6"
+          ],
+          "潘柏全": [
+                    "週二 6-7",
+                    "週二 8",
+                    "週四 5-6",
+                    "週四 7"
+          ],
+          "周靜娟": [
+                    "週一 5-6",
+                    "週一 7",
+                    "週二 2-3",
+                    "週二 4-5",
+                    "週二 6-7",
+                    "週二 8",
+                    "週三 1-2",
+                    "週三 3-4",
+                    "週四 2-3",
+                    "週四 4"
+          ],
+          "顏培仁": [
+                    "週一 5-6",
+                    "週一 7-8",
+                    "週二 2-3",
+                    "週二 4-5",
+                    "週二 6",
+                    "週三 2-3",
+                    "週三 4",
+                    "週四 2-3",
+                    "週四 4-5",
+                    "週四 6-7"
+          ],
+          "楊信佳": [
+                    "週二 2",
+                    "週二 3",
+                    "週二 4",
+                    "週二 5",
+                    "週三 3",
+                    "週三 4",
+                    "週四 2",
+                    "週四 3",
+                    "週四 4",
+                    "週四 5",
+                    "週四 6",
+                    "週四 7",
+                    "週四 8"
+          ],
+          "陳肇業": [
+                    "週一 5",
+                    "週一 6",
+                    "週一 7",
+                    "週四 2",
+                    "週四 3",
+                    "週四 4",
+                    "週四 5",
+                    "週四 6",
+                    "週四 7",
+                    "週五 2",
+                    "週五 3",
+                    "週五 4"
+          ]
+};
                 // 內嵌資料結束
             }
             renderAll();
@@ -1013,5 +1294,5 @@
         // 初始化
         loadData();
     </script>
-</body>
-</html>
+
+</body></html>
