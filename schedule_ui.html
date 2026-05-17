@@ -424,8 +424,8 @@
         <div class="tabs">
             <button class="tab-btn" onclick="showTab('view')">📋 查看課表</button>
             <button class="tab-btn" onclick="showTab('query')">🔍 查詢空堂</button>
-            <button class="tab-btn active" onclick="showTab('import')">📥 匯入資料</button>
-            <button class="tab-btn" onclick="showTab('add')">➕ 手動新增</button>
+            <button class="tab-btn" onclick="showTab('import')">📥 匯入資料</button>
+            <button class="tab-btn active" onclick="showTab('add')">➕ 手動新增</button>
         </div>
         
         <!-- 查看課表 -->
@@ -510,17 +510,6 @@
                 
                     <div class="teacher-card">
                         <div class="teacher-name">
-                            楊信佳
-                            <div class="card-actions">
-                                <button class="btn-edit" onclick="editTeacher('楊信佳')">✏️ 編輯</button>
-                                <button class="btn-delete" onclick="deleteTeacher('楊信佳')">🗑️</button>
-                            </div>
-                        </div>
-                        <div class="schedule-item"><span class="day">週二</span><span class="slots">2<br>3<br>4<br>5</span></div><div class="schedule-item"><span class="day">週三</span><span class="slots">3<br>4</span></div><div class="schedule-item"><span class="day">週四</span><span class="slots">2<br>3<br>4<br>5<br>6<br>7<br>8</span></div>
-                    </div>
-                
-                    <div class="teacher-card">
-                        <div class="teacher-name">
                             陳肇業
                             <div class="card-actions">
                                 <button class="btn-edit" onclick="editTeacher('陳肇業')">✏️ 編輯</button>
@@ -591,9 +580,9 @@
         </div>
         
         <!-- 匯入資料 -->
-        <div id="import" class="panel active">
+        <div id="import" class="panel">
             <div class="add-form">
-                <div id="importMessage"><div class="message success">✏️ 編輯 陳肇業 的課表 — 修改後點「匯入」覆蓋</div></div>
+                <div id="importMessage"></div>
                 
                 <div class="import-hint">
                     <strong>📥 匯入方式</strong><br>
@@ -625,7 +614,7 @@
         </div>
         
         <!-- 手動新增 -->
-        <div id="add" class="panel">
+        <div id="add" class="panel active">
             <div class="add-form">
                 <div id="addMessage"></div>
                 <div class="form-group">
@@ -762,10 +751,10 @@
     </div>
 
     <!-- 確認刪除對話框 -->
-    <div id="confirmDialog" class="confirm-dialog" style="display: none;">
+    <div id="confirmDialog" class="confirm-dialog" style="display:none;">
         <div class="confirm-box">
             <h3>⚠️ 確認刪除</h3>
-            <p id="confirmText">確定要刪除 楊 的課表嗎？</p>
+            <p id="confirmText">確定要刪除嗎？</p>
             <div class="confirm-btns">
                 <button class="btn-cancel" onclick="closeConfirm()">取消</button>
                 <button class="btn-confirm-del" id="confirmAction">刪除</button>
@@ -908,6 +897,20 @@
                     "週四 4-5",
                     "週四 6-7"
           ],
+          "陳肇業": [
+                    "週一 5",
+                    "週一 6",
+                    "週一 7",
+                    "週四 2",
+                    "週四 3",
+                    "週四 4",
+                    "週四 5",
+                    "週四 6",
+                    "週四 7",
+                    "週五 2",
+                    "週五 3",
+                    "週五 4"
+          ],
           "楊信佳": [
                     "週二 2",
                     "週二 3",
@@ -922,20 +925,6 @@
                     "週四 6",
                     "週四 7",
                     "週四 8"
-          ],
-          "陳肇業": [
-                    "週一 5",
-                    "週一 6",
-                    "週一 7",
-                    "週四 2",
-                    "週四 3",
-                    "週四 4",
-                    "週四 5",
-                    "週四 6",
-                    "週四 7",
-                    "週五 2",
-                    "週五 3",
-                    "週五 4"
           ]
 };
                 // 內嵌資料結束
@@ -1295,4 +1284,4 @@
         loadData();
     </script>
 
-<div id="immersive-translate-popup" style="all: initial"></div></body></html>
+</body><div id="immersive-translate-popup" style="all: initial"></div></html>
