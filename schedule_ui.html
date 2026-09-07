@@ -468,4 +468,1684 @@
             color: white;
         }
     </style>
-                </html>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 老師課表查詢系統</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn" onclick="showTab('view')">📋 查看課表</button>
+            <button class="tab-btn" onclick="showTab('query')">🔍 查詢空堂</button>
+            <button class="tab-btn" onclick="showTab('import')">📥 匯入資料</button>
+            <button class="tab-btn active" onclick="showTab('add')">➕ 手動新增</button>
+        </div>
+        
+        <!-- 查看課表 -->
+        <div id="view" class="panel">
+            <div class="teacher-grid" id="teacherGrid">
+                
+        </div>
+        
+        <!-- 查詢空堂 -->
+        <div id="query" class="panel">
+            <div class="query-section">
+                <h2>查詢空堂老師</h2>
+                
+                <div style="background:#f8f9fa;padding:20px;border-radius:15px;margin-bottom:20px;">
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label>選擇星期</label>
+                        <select id="queryDay" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                            <option value="週一">週一</option>
+                            <option value="週二">週二</option>
+                            <option value="週三">週三</option>
+                            <option value="週四">週四</option>
+                            <option value="週五">週五</option>
+                            <option value="週六">週六</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display:flex;gap:20px;align-items:center;justify-content:center;">
+                        <div class="form-group" style="margin-bottom:0;flex:1;">
+                            <label>從第</label>
+                            <select id="queryStart" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                                <option value="1">第 1 節</option>
+                                <option value="2">第 2 節</option>
+                                <option value="3">第 3 節</option>
+                                <option value="4">第 4 節</option>
+                                <option value="5">第 5 節</option>
+                                <option value="6">第 6 節</option>
+                                <option value="7">第 7 節</option>
+                                <option value="8">第 8 節</option>
+                                <option value="9">第 9 節</option>
+                            </select>
+                        </div>
+                        <span style="font-size:18px;font-weight:bold;">到</span>
+                        <div class="form-group" style="margin-bottom:0;flex:1;">
+                            <label>第</label>
+                            <select id="queryEnd" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                                <option value="1">第 1 節</option>
+                                <option value="2" selected="">第 2 節</option>
+                                <option value="3">第 3 節</option>
+                                <option value="4">第 4 節</option>
+                                <option value="5">第 5 節</option>
+                                <option value="6">第 6 節</option>
+                                <option value="7">第 7 節</option>
+                                <option value="8">第 8 節</option>
+                                <option value="9">第 9 節</option>
+                            </select>
+                        </div>
+                        <span style="font-size:18px;font-weight:bold;">節</span>
+                    </div>
+                </div>
+                
+                <button class="submit-btn" onclick="queryFreeTeachers()">🔍 查詢空堂老師</button>
+                
+                <div id="queryResult"></div>
+            </div>
+        </div>
+        
+        <!-- 匯入資料 -->
+        <div id="import" class="panel">
+            <div class="add-form">
+                <div id="importMessage"></div>
+                
+                <div class="import-hint">
+                    <strong>📥 匯入方式</strong><br>
+                    請先執行 <code>python fetch_teacher.py 老師姓名</code> 取得 JSON 檔案，<br>
+                    然後將 JSON 內容貼到下方，或直接上傳 <code>teacher_schedule.json</code> 檔案。<br><br>
+                    <strong>💡 雲端上傳</strong>：每次操作後會自動下載新版 HTML，<br>
+                    將下載的 <code>schedule_ui.html</code> 上傳到雲端即可更新資料！<br><br>
+                    <strong>支援格式：</strong><br>
+                    • 新格式（含課程資訊）：<code>{"楊信佳": {"週二 2": {"course":"射頻電路設計","class":"碩子一甲","room":"明光樓204"}}}</code><br>
+                    • 舊格式（時段列表）：<code>{"沈添賜": ["週二 8-9","週四 2"]}</code>
+                </div>
+                
+                <div class="form-group">
+                    <label>貼上 JSON 內容</label>
+                    <textarea id="jsonInput" placeholder="{&quot;楊信佳&quot;: {&quot;週二 2&quot;: {&quot;course&quot;:&quot;射頻電路設計&quot;,&quot;class&quot;:&quot;碩子一甲&quot;,&quot;room&quot;:&quot;明光樓204教室&quot;}}}"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>或上傳 JSON 檔案</label>
+                    <input type="file" id="jsonFile" accept=".json" style="padding:8px;">
+                </div>
+                
+                <button class="submit-btn secondary" onclick="importJSON()">📥 匯入課表資料</button>
+                
+                <div style="margin-top:20px;text-align:center;">
+                    <button class="submit-btn warning" onclick="clearAllData()" style="margin-top:10px;">🗑️ 清除所有資料</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 手動新增 -->
+        <div id="add" class="panel active">
+            <div class="add-form">
+                <div id="addMessage"></div>
+                <div class="form-group">
+                    <label>老師姓名</label>
+                    <input type="text" id="teacherName" placeholder="輸入老師姓名">
+                </div>
+                <div class="form-group">
+                    <label>選擇有課的時段</label>
+                    <div class="slots-input" id="slotsInput">
+                <input type="checkbox" class="slot-checkbox" id="slot0" value="週一 1">
+                <label class="slot-label" for="slot0">週一 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot1" value="週一 2">
+                <label class="slot-label" for="slot1">週一 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot2" value="週一 3">
+                <label class="slot-label" for="slot2">週一 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot3" value="週一 4">
+                <label class="slot-label" for="slot3">週一 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot4" value="週一 5">
+                <label class="slot-label" for="slot4">週一 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot5" value="週一 6">
+                <label class="slot-label" for="slot5">週一 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot6" value="週一 7">
+                <label class="slot-label" for="slot6">週一 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot7" value="週一 8">
+                <label class="slot-label" for="slot7">週一 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot8" value="週二 1">
+                <label class="slot-label" for="slot8">週二 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot9" value="週二 2">
+                <label class="slot-label" for="slot9">週二 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot10" value="週二 3">
+                <label class="slot-label" for="slot10">週二 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot11" value="週二 4">
+                <label class="slot-label" for="slot11">週二 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot12" value="週二 5">
+                <label class="slot-label" for="slot12">週二 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot13" value="週二 6">
+                <label class="slot-label" for="slot13">週二 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot14" value="週二 7">
+                <label class="slot-label" for="slot14">週二 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot15" value="週二 8">
+                <label class="slot-label" for="slot15">週二 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot16" value="週三 1">
+                <label class="slot-label" for="slot16">週三 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot17" value="週三 2">
+                <label class="slot-label" for="slot17">週三 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot18" value="週三 3">
+                <label class="slot-label" for="slot18">週三 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot19" value="週三 4">
+                <label class="slot-label" for="slot19">週三 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot20" value="週三 5">
+                <label class="slot-label" for="slot20">週三 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot21" value="週三 6">
+                <label class="slot-label" for="slot21">週三 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot22" value="週三 7">
+                <label class="slot-label" for="slot22">週三 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot23" value="週三 8">
+                <label class="slot-label" for="slot23">週三 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot24" value="週四 1">
+                <label class="slot-label" for="slot24">週四 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot25" value="週四 2">
+                <label class="slot-label" for="slot25">週四 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot26" value="週四 3">
+                <label class="slot-label" for="slot26">週四 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot27" value="週四 4">
+                <label class="slot-label" for="slot27">週四 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot28" value="週四 5">
+                <label class="slot-label" for="slot28">週四 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot29" value="週四 6">
+                <label class="slot-label" for="slot29">週四 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot30" value="週四 7">
+                <label class="slot-label" for="slot30">週四 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot31" value="週四 8">
+                <label class="slot-label" for="slot31">週四 8</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot32" value="週五 1">
+                <label class="slot-label" for="slot32">週五 1</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot33" value="週五 2">
+                <label class="slot-label" for="slot33">週五 2</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot34" value="週五 3">
+                <label class="slot-label" for="slot34">週五 3</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot35" value="週五 4">
+                <label class="slot-label" for="slot35">週五 4</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot36" value="週五 5">
+                <label class="slot-label" for="slot36">週五 5</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot37" value="週五 6">
+                <label class="slot-label" for="slot37">週五 6</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot38" value="週五 7">
+                <label class="slot-label" for="slot38">週五 7</label>
+            
+                <input type="checkbox" class="slot-checkbox" id="slot39" value="週五 8">
+                <label class="slot-label" for="slot39">週五 8</label>
+            </div>
+                </div>
+                <button class="submit-btn" onclick="addTeacher()">儲存課表</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認刪除對話框 -->
+    <div id="confirmDialog" class="confirm-dialog" style="display:none;">
+        <div class="confirm-box">
+            <h3>⚠️ 確認刪除</h3>
+            <p id="confirmText">確定要刪除嗎？</p>
+            <div class="confirm-btns">
+                <button class="btn-cancel" onclick="closeConfirm()">取消</button>
+                <button class="btn-confirm-del" id="confirmAction">刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 課表資料 - 支援兩種格式:
+        // 新格式: { "老師名": { "週一 2": { course, class, room }, ... } }
+        // 舊格式: { "老師名": ["週一 1-2", "週二 3-4", ...] }
+        let scheduleData = {};
+        
+        const timeSlots = [
+            "週一 1", "週一 2", "週一 3", "週一 4", "週一 5", "週一 6", "週一 7", "週一 8",
+            "週二 1", "週二 2", "週二 3", "週二 4", "週二 5", "週二 6", "週二 7", "週二 8",
+            "週三 1", "週三 2", "週三 3", "週三 4", "週三 5", "週三 6", "週三 7", "週三 8",
+            "週四 1", "週四 2", "週四 3", "週四 4", "週四 5", "週四 6", "週四 7", "週四 8",
+            "週五 1", "週五 2", "週五 3", "週五 4", "週五 5", "週五 6", "週五 7", "週五 8"
+        ];
+        
+        const dayOrder = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+        
+        // 判斷是否為新格式（物件含 course 屬性）
+        function isNewFormat(data) {
+            if (typeof data !== 'object') return false;
+            for (let key in data) {
+                if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
+                    // 檢查第一個值是否含 course 屬性
+                    for (let slot in data[key]) {
+                        if (data[key][slot] && typeof data[key][slot] === 'object' && data[key][slot].course) {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            return false;
+        }
+        
+        // 從課表資料取得某老師的所有時段（統一處理新舊格式）
+        function getSlots(teacher) {
+            const data = scheduleData[teacher];
+            if (!data) return [];
+            
+            if (Array.isArray(data)) {
+                // 舊格式: ["週一 1-2", "週二 3-4"]
+                return data;
+            }
+            
+            if (typeof data === 'object') {
+                // 新格式: { "週一 2": {course, class, room} }
+                return Object.keys(data);
+            }
+            
+            return [];
+        }
+        
+        // 取得某時段的詳細資訊
+        function getSlotDetail(teacher, slot) {
+            const data = scheduleData[teacher];
+            if (!data || Array.isArray(data)) return null;
+            return data[slot] || null;
+        }
+        
+        // 讀取資料
+        async function loadData() {
+            // 先嘗試 localStorage
+            const saved = localStorage.getItem('teacherSchedule');
+            if (saved) {
+                try {
+                    scheduleData = JSON.parse(saved);
+                    renderAll();
+                    return;
+                } catch(e) {}
+            }
+            
+            // 嘗試 fetch JSON 檔案
+            try {
+                const response = await fetch('teacher_schedule.json');
+                scheduleData = await response.json();
+            } catch (e) {
+                // 內嵌資料開始
+                scheduleData = {
+                "沈添賜": {
+                                "週二 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四國子四甲",
+                                                "room": ""
+                                },
+                                "週三 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四國子四甲",
+                                                "room": ""
+                                },
+                                "週四 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四國子四甲",
+                                                "room": ""
+                                },
+                                "週五 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四國子四甲",
+                                                "room": ""
+                                },
+                                "週四 2": {
+                                                "course": "積體電路測試實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週四 3": {
+                                                "course": "積體電路測試實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週四 4": {
+                                                "course": "積體電路測試實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週二 8": {
+                                                "course": "半導體工程(二)",
+                                                "class": "博半一甲",
+                                                "room": "逢喜樓二樓專題研究室"
+                                },
+                                "週五 8": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四國子四甲",
+                                                "room": ""
+                                },
+                                "週二 9": {
+                                                "course": "半導體工程(二)",
+                                                "class": "博半一甲",
+                                                "room": "逢喜樓二樓專題研究室"
+                                }
+                },
+                "鄭文源": {
+                                "週一 1": {
+                                                "course": "人工智慧概論",
+                                                "class": "四子一乙",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週三 1": {
+                                                "course": "電子電路實習",
+                                                "class": "四子一乙",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週一 2": {
+                                                "course": "人工智慧概論",
+                                                "class": "四子一乙",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週三 2": {
+                                                "course": "電子電路實習",
+                                                "class": "四子一乙",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週四 2": {
+                                                "course": "微積分(二)",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週二 3": {
+                                                "course": "電子學實習(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週二 4": {
+                                                "course": "電子學實習(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週一 5": {
+                                                "course": "人工智慧概論",
+                                                "class": "四子一甲",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週二 5": {
+                                                "course": "微積分(二)",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週四 5": {
+                                                "course": "電路學(二)",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週一 6": {
+                                                "course": "人工智慧概論",
+                                                "class": "四子一甲",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週二 6": {
+                                                "course": "微積分(二)",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週四 6": {
+                                                "course": "電路學(二)",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週二 7": {
+                                                "course": "電路學(二)",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                }
+                },
+                "江培成": {
+                                "週一 1": {
+                                                "course": "工業安全與衛生-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週六 1": {
+                                                "course": "製造實務-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週一 2": {
+                                                "course": "工業安全與衛生-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週六 2": {
+                                                "course": "製造實務-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週二 3": {
+                                                "course": "物理與物理實驗",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週二 4": {
+                                                "course": "物理與物理實驗",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週六 4": {
+                                                "course": "全面品質管理-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週一 5": {
+                                                "course": "工廠實務-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週五 5": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週六 5": {
+                                                "course": "全面品質管理-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週一 6": {
+                                                "course": "工廠實務-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週二 6": {
+                                                "course": "現場作業實務-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週三 6": {
+                                                "course": "企業法規概念-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週五 6": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週二 7": {
+                                                "course": "現場作業實務-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週三 7": {
+                                                "course": "企業法規概念-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                },
+                                "週六 7": {
+                                                "course": "工程倫理-校外實習",
+                                                "class": "二子封二甲",
+                                                "room": ""
+                                }
+                },
+                "劉啟文": {
+                                "週二 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週三 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週四 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週五 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週四 2": {
+                                                "course": "半導體製程技術",
+                                                "class": "四海子封二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週二 3": {
+                                                "course": "工程倫理",
+                                                "class": "四海子封三甲",
+                                                "room": "明明樓四樓408教室"
+                                },
+                                "週四 3": {
+                                                "course": "半導體製程技術",
+                                                "class": "四海子封二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週二 4": {
+                                                "course": "工程倫理",
+                                                "class": "四海子封三甲",
+                                                "room": "明明樓四樓408教室"
+                                },
+                                "週四 4": {
+                                                "course": "半導體製程技術",
+                                                "class": "四海子封二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週一 5": {
+                                                "course": "奈米科技應用",
+                                                "class": "四國子二甲",
+                                                "room": "明光樓四樓401教室"
+                                },
+                                "週二 5": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週三 5": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                },
+                                "週四 5": {
+                                                "course": "工程倫理",
+                                                "class": "四國子三甲",
+                                                "room": "明光樓四樓402教室"
+                                },
+                                "週一 6": {
+                                                "course": "奈米科技應用",
+                                                "class": "四國子二甲",
+                                                "room": "明光樓四樓401教室"
+                                },
+                                "週四 6": {
+                                                "course": "工程倫理",
+                                                "class": "四國子三甲",
+                                                "room": "明光樓四樓402教室"
+                                },
+                                "週一 7": {
+                                                "course": "奈米科技應用",
+                                                "class": "四國子二甲",
+                                                "room": "明光樓四樓401教室"
+                                },
+                                "週二 8": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四國子二甲",
+                                                "room": ""
+                                }
+                },
+                "潘柏全": {
+                                "週六 1": {
+                                                "course": "工廠實務-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週六 2": {
+                                                "course": "工廠實務-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週六 3": {
+                                                "course": "工廠實務-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週六 4": {
+                                                "course": "製造實務-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週四 5": {
+                                                "course": "數位系統設計",
+                                                "class": "四子二甲",
+                                                "room": "明光樓二樓203教室"
+                                },
+                                "週六 5": {
+                                                "course": "製造實務-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週二 6": {
+                                                "course": "微積分(二)",
+                                                "class": "攜子僑一甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週四 6": {
+                                                "course": "數位系統設計",
+                                                "class": "四子二甲",
+                                                "room": "明光樓二樓203教室"
+                                },
+                                "週六 6": {
+                                                "course": "製造實務-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週二 7": {
+                                                "course": "微積分(二)",
+                                                "class": "攜子僑一甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週四 7": {
+                                                "course": "數位系統設計",
+                                                "class": "四子二甲",
+                                                "room": "明光樓二樓203教室"
+                                },
+                                "週六 7": {
+                                                "course": "生產管理-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週二 8": {
+                                                "course": "微積分(二)",
+                                                "class": "攜子僑一甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週六 8": {
+                                                "course": "生產管理-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                },
+                                "週六 9": {
+                                                "course": "生產管理-校外實習",
+                                                "class": "四子四乙",
+                                                "room": ""
+                                }
+                },
+                "周靜娟": {
+                                "週三 1": {
+                                                "course": "程式設計實習",
+                                                "class": "四子一甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週二 2": {
+                                                "course": "硬體描述語言實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週三 2": {
+                                                "course": "程式設計實習",
+                                                "class": "四子一甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週四 2": {
+                                                "course": "可程式元件規劃實務",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週二 3": {
+                                                "course": "硬體描述語言實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週三 3": {
+                                                "course": "程式設計實習",
+                                                "class": "四子一乙",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週四 3": {
+                                                "course": "可程式元件規劃實務",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週二 4": {
+                                                "course": "硬體描述語言實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週三 4": {
+                                                "course": "程式設計實習",
+                                                "class": "四子一乙",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週四 4": {
+                                                "course": "可程式元件規劃實務",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週一 5": {
+                                                "course": "數位邏輯設計與實習",
+                                                "class": "四資工春二甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週二 5": {
+                                                "course": "Python程式設計",
+                                                "class": "四子四甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週一 6": {
+                                                "course": "數位邏輯設計與實習",
+                                                "class": "四資工春二甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週二 6": {
+                                                "course": "Python程式設計",
+                                                "class": "四子四甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週一 7": {
+                                                "course": "數位邏輯設計與實習",
+                                                "class": "四資工春二甲",
+                                                "room": "電子大樓三樓304積體電路量測實驗室"
+                                },
+                                "週二 7": {
+                                                "course": "Python程式設計",
+                                                "class": "四子四甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                },
+                                "週二 8": {
+                                                "course": "Python程式設計",
+                                                "class": "四子四甲",
+                                                "room": "電子大樓二樓207計算機網路實驗室"
+                                }
+                },
+                "顏培仁": {
+                                "週一 1": {
+                                                "course": "實務專題(二)",
+                                                "class": "四子三甲",
+                                                "room": ""
+                                },
+                                "週二 2": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週三 2": {
+                                                "course": "機器人組裝控制實務",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週四 2": {
+                                                "course": "電腦輔助電路佈線實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週二 3": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週三 3": {
+                                                "course": "機器人組裝控制實務",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週四 3": {
+                                                "course": "電腦輔助電路佈線實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週二 4": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週三 4": {
+                                                "course": "機器人組裝控制實務",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週四 4": {
+                                                "course": "電腦輔助電路佈線實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週一 5": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四國子四甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週二 5": {
+                                                "course": "數位邏輯實習",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週四 5": {
+                                                "course": "嵌入式微算機系統",
+                                                "class": "四國資工春三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週一 6": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四國子四甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週二 6": {
+                                                "course": "數位邏輯實習",
+                                                "class": "四子二甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週四 6": {
+                                                "course": "嵌入式微算機系統",
+                                                "class": "四國資工春三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週一 7": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四國子四甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週四 7": {
+                                                "course": "嵌入式微算機系統",
+                                                "class": "四國資工春三甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                },
+                                "週一 8": {
+                                                "course": "FPGA設計實務",
+                                                "class": "四國子四甲",
+                                                "room": "電子大樓四樓404微電腦應用實驗室"
+                                }
+                },
+                "楊信佳": {
+                                "週二 2": {
+                                                "course": "射頻電路設計",
+                                                "class": "碩子一甲",
+                                                "room": "明光樓二樓204教室"
+                                },
+                                "週四 2": {
+                                                "course": "進階積體電路控制",
+                                                "class": "碩子一甲",
+                                                "room": "電子大樓三樓308積體電路設計實驗室"
+                                },
+                                "週二 3": {
+                                                "course": "射頻電路設計",
+                                                "class": "碩子一甲",
+                                                "room": "明光樓二樓204教室"
+                                },
+                                "週三 3": {
+                                                "course": "數位系統設計",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週四 3": {
+                                                "course": "進階積體電路控制",
+                                                "class": "碩子一甲",
+                                                "room": "電子大樓三樓308積體電路設計實驗室"
+                                },
+                                "週二 4": {
+                                                "course": "射頻電路設計",
+                                                "class": "碩子一甲",
+                                                "room": "明光樓二樓204教室"
+                                },
+                                "週三 4": {
+                                                "course": "數位系統設計",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週四 4": {
+                                                "course": "進階積體電路控制",
+                                                "class": "碩子一甲",
+                                                "room": "電子大樓三樓308積體電路設計實驗室"
+                                },
+                                "週六 4": {
+                                                "course": "論文撰寫",
+                                                "class": "碩子二甲",
+                                                "room": ""
+                                },
+                                "週二 5": {
+                                                "course": "數位系統設計",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週四 5": {
+                                                "course": "微處理機應用",
+                                                "class": "四國子四甲",
+                                                "room": "明光樓四樓401教室"
+                                },
+                                "週四 6": {
+                                                "course": "微處理機應用",
+                                                "class": "四國子四甲",
+                                                "room": "明光樓四樓401教室"
+                                },
+                                "週四 7": {
+                                                "course": "微處理機應用",
+                                                "class": "四國子四甲",
+                                                "room": "明光樓四樓401教室"
+                                },
+                                "週四 8": {
+                                                "course": "微處理機應用",
+                                                "class": "四國子四甲",
+                                                "room": "明光樓四樓401教室"
+                                }
+                },
+                "王木俊": {
+                                "週五 2": {
+                                                "course": "積體電路量測與可靠性分析",
+                                                "class": "碩子一甲",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週五 3": {
+                                                "course": "積體電路量測與可靠性分析",
+                                                "class": "碩子一甲",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週五 4": {
+                                                "course": "積體電路量測與可靠性分析",
+                                                "class": "碩子一甲",
+                                                "room": "明光樓二樓202教室"
+                                },
+                                "週四 5": {
+                                                "course": "積體電路可靠性工程",
+                                                "class": "四子三甲",
+                                                "room": "明光樓二樓204教室"
+                                },
+                                "週五 5": {
+                                                "course": "數位邏輯設計",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週四 6": {
+                                                "course": "積體電路可靠性工程",
+                                                "class": "四子三甲",
+                                                "room": "明光樓二樓204教室"
+                                },
+                                "週五 6": {
+                                                "course": "數位邏輯設計",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週四 7": {
+                                                "course": "積體電路可靠性工程",
+                                                "class": "四子三甲",
+                                                "room": "明光樓二樓204教室"
+                                },
+                                "週五 7": {
+                                                "course": "數位邏輯設計",
+                                                "class": "四子一甲",
+                                                "room": "明光樓一樓106教室"
+                                }
+                },
+                "陳肇業": {
+                                "週一 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四海子封二甲",
+                                                "room": ""
+                                },
+                                "週二 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四海子封二甲",
+                                                "room": ""
+                                },
+                                "週三 1": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四海子封二甲",
+                                                "room": ""
+                                },
+                                "週四 2": {
+                                                "course": "微處理機原理",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週五 2": {
+                                                "course": "數位通訊實務",
+                                                "class": "四海子封二甲",
+                                                "room": "電子大樓四樓407通訊系統實驗室"
+                                },
+                                "週四 3": {
+                                                "course": "微處理機原理",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週五 3": {
+                                                "course": "數位通訊實務",
+                                                "class": "四海子封二甲",
+                                                "room": "電子大樓四樓407通訊系統實驗室"
+                                },
+                                "週四 4": {
+                                                "course": "微處理機原理",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週五 4": {
+                                                "course": "數位通訊實務",
+                                                "class": "四海子封二甲",
+                                                "room": "電子大樓四樓407通訊系統實驗室"
+                                },
+                                "週一 5": {
+                                                "course": "通訊系統實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓四樓407通訊系統實驗室"
+                                },
+                                "週二 5": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四海子封二甲",
+                                                "room": ""
+                                },
+                                "週三 5": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四海子封二甲",
+                                                "room": ""
+                                },
+                                "週四 5": {
+                                                "course": "線性代數",
+                                                "class": "四海子封二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週一 6": {
+                                                "course": "通訊系統實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓四樓407通訊系統實驗室"
+                                },
+                                "週四 6": {
+                                                "course": "線性代數",
+                                                "class": "四海子封二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週一 7": {
+                                                "course": "通訊系統實務",
+                                                "class": "四子三甲",
+                                                "room": "電子大樓四樓407通訊系統實驗室"
+                                },
+                                "週四 7": {
+                                                "course": "線性代數",
+                                                "class": "四海子封二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週一 8": {
+                                                "course": "產業實務實習(二)-校外實習",
+                                                "class": "四海子封二甲",
+                                                "room": ""
+                                }
+                },
+                "張本仁": {
+                                "週三 1": {
+                                                "course": "電子學(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週五 1": {
+                                                "course": "數位系統設計",
+                                                "class": "四海子封一甲",
+                                                "room": "明明樓四樓409教室"
+                                },
+                                "週二 2": {
+                                                "course": "電子學(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "明光樓二樓203教室"
+                                },
+                                "週三 2": {
+                                                "course": "電子學(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓503教室"
+                                },
+                                "週五 2": {
+                                                "course": "電子學(二)",
+                                                "class": "四子二甲",
+                                                "room": "明光樓三樓303教室"
+                                },
+                                "週二 3": {
+                                                "course": "電子學(二)",
+                                                "class": "四子二甲",
+                                                "room": "明光樓二樓203教室"
+                                },
+                                "週三 3": {
+                                                "course": "電子電路實習",
+                                                "class": "四子一甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週四 3": {
+                                                "course": "電子電路實習",
+                                                "class": "四海子封一甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週五 3": {
+                                                "course": "分類通識-科技與人生",
+                                                "class": "四光一甲",
+                                                "room": "明光樓三樓303教室"
+                                },
+                                "週二 4": {
+                                                "course": "電子學(二)",
+                                                "class": "四子二甲",
+                                                "room": "明光樓二樓203教室"
+                                },
+                                "週三 4": {
+                                                "course": "電子電路實習",
+                                                "class": "四子一甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週四 4": {
+                                                "course": "電子電路實習",
+                                                "class": "四海子封一甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週五 4": {
+                                                "course": "分類通識-科技與人生",
+                                                "class": "四光一甲",
+                                                "room": "明光樓三樓303教室"
+                                },
+                                "週二 5": {
+                                                "course": "類比電子實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓三樓303積體電路布局實驗室"
+                                },
+                                "週四 5": {
+                                                "course": "數位系統設計",
+                                                "class": "四海子封一甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週二 6": {
+                                                "course": "類比電子實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓三樓303積體電路布局實驗室"
+                                },
+                                "週四 6": {
+                                                "course": "數位系統設計",
+                                                "class": "四海子封一甲",
+                                                "room": "電子大樓三樓307電子電路實驗室"
+                                },
+                                "週二 7": {
+                                                "course": "類比電子實務",
+                                                "class": "四國子三甲",
+                                                "room": "電子大樓三樓303積體電路布局實驗室"
+                                }
+                },
+                "季松青": {
+                                "週三 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四海子封三甲",
+                                                "room": ""
+                                },
+                                "週四 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四海子封三甲",
+                                                "room": ""
+                                },
+                                "週五 1": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四海子封三甲",
+                                                "room": ""
+                                },
+                                "週一 2": {
+                                                "course": "射頻電路設計",
+                                                "class": "四海子封三甲",
+                                                "room": "明明樓四樓408教室"
+                                },
+                                "週三 2": {
+                                                "course": "電路學(二)",
+                                                "class": "四海子封一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週一 3": {
+                                                "course": "射頻電路設計",
+                                                "class": "四海子封三甲",
+                                                "room": "明明樓四樓408教室"
+                                },
+                                "週三 3": {
+                                                "course": "電路學(二)",
+                                                "class": "四海子封一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週一 4": {
+                                                "course": "射頻電路設計",
+                                                "class": "四海子封三甲",
+                                                "room": "明明樓四樓408教室"
+                                },
+                                "週三 4": {
+                                                "course": "電路學(二)",
+                                                "class": "四海子封一甲",
+                                                "room": "明光樓一樓106教室"
+                                },
+                                "週三 5": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四海子封三甲",
+                                                "room": ""
+                                },
+                                "週四 5": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四海子封三甲",
+                                                "room": ""
+                                },
+                                "週五 5": {
+                                                "course": "產業實務實習(四)-校外實習",
+                                                "class": "四海子封三甲",
+                                                "room": ""
+                                },
+                                "週二 6": {
+                                                "course": "物理與物理實習(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週二 7": {
+                                                "course": "物理與物理實習(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓505教室"
+                                },
+                                "週二 8": {
+                                                "course": "物理與物理實習(二)",
+                                                "class": "攜子僑二甲",
+                                                "room": "明明樓五樓505教室"
+                                }
+                }
+};
+                // 內嵌資料結束
+            }
+            renderAll();
+        }
+        
+        function saveData() {
+            localStorage.setItem('teacherSchedule', JSON.stringify(scheduleData));
+            // 更新內嵌資料標記，方便下載
+            updateEmbeddedData();
+        }
+        
+        // 產生含最新資料的 HTML 並下載
+        function updateEmbeddedData() {
+            // 自動下載新版 HTML（資料已內嵌）
+            downloadUpdatedHTML();
+        }
+        
+        function downloadUpdatedHTML() {
+            const currentHTML = document.documentElement.outerHTML;
+            // 找到內嵌資料的區段並替換
+            const dataStr = JSON.stringify(scheduleData, null, 16);
+            
+            // 替換 scheduleData = {...} 為最新資料
+            let newHTML = '<!DOCTYPE html>\n' + currentHTML;
+            
+            // 用正則替換內嵌資料區段
+            // 從 "// 內嵌資料開始" 到 "// 內嵌資料結束"
+            const startMarker = '// 內嵌資料開始';
+            const endMarker = '// 內嵌資料結束';
+            const startIdx = newHTML.indexOf(startMarker);
+            const endIdx = newHTML.indexOf(endMarker);
+            
+            if (startIdx >= 0 && endIdx >= 0) {
+                const before = newHTML.substring(0, startIdx);
+                const after = newHTML.substring(endIdx + endMarker.length);
+                const embedded = `${startMarker}\n                scheduleData = ${dataStr};\n                ${endMarker}`;
+                newHTML = before + embedded + after;
+            } else {
+                // 如果找不到標記，替換 loadData 裡的 fallback
+                const fallbackPattern = /scheduleData = \{[\s\S]*?\};\s*\/\/ 內嵌資料結束/;
+                if (fallbackPattern.test(newHTML)) {
+                    newHTML = newHTML.replace(fallbackPattern, `scheduleData = ${dataStr};\n                // 內嵌資料結束`);
+                }
+            }
+            
+            const blob = new Blob([newHTML], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'schedule_ui.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 渲染所有內容
+        function renderAll() {
+            renderTeacherGrid();
+            renderSlotsInput();
+        }
+        
+        // 渲染老師課表卡片
+        function renderTeacherGrid() {
+            const grid = document.getElementById('teacherGrid');
+            const teachers = Object.keys(scheduleData);
+            
+            if (teachers.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;width:100%;color:#666;">尚無課表資料，請至「匯入資料」新增</p>';
+                return;
+            }
+            
+            grid.innerHTML = teachers.map(name => {
+                const slots = getSlots(name);
+                const scheduleByDay = {};
+                
+                slots.forEach(slot => {
+                    const parts = slot.split(' ');
+                    const day = parts[0];
+                    const period = parts.slice(1).join(' ');
+                    if (!scheduleByDay[day]) scheduleByDay[day] = [];
+                    
+                    const detail = getSlotDetail(name, slot);
+                    scheduleByDay[day].push({ period, detail });
+                });
+                
+                let scheduleHtml = '';
+                dayOrder.forEach(day => {
+                    if (scheduleByDay[day]) {
+                        const items = scheduleByDay[day].map(item => {
+                            let html = item.period;
+                            if (item.detail && item.detail.course) {
+                                html += ` <span class="course-name">${item.detail.course}</span>`;
+                                if (item.detail.class) html += ` <span class="slot-detail">${item.detail.class}</span>`;
+                                if (item.detail.room) html += ` <span class="slot-detail">${item.detail.room}</span>`;
+                            }
+                            return html;
+                        }).join('<br>');
+                        scheduleHtml += `<div class="schedule-item"><span class="day">${day}</span><span class="slots">${items}</span></div>`;
+                    }
+                });
+                
+                return `
+                    <div class="teacher-card">
+                        <div class="teacher-name">
+                            ${name}
+                            <div class="card-actions">
+                                <button class="btn-edit" onclick="editTeacher('${name}')">✏️ 編輯</button>
+                                <button class="btn-delete" onclick="deleteTeacher('${name}')">🗑️</button>
+                            </div>
+                        </div>
+                        ${scheduleHtml || '<p style="color:#888;">(空堂)</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 渲染時段選擇（手動新增用）
+        function renderSlotsInput() {
+            const container = document.getElementById('slotsInput');
+            container.innerHTML = timeSlots.map((slot, i) => `
+                <input type="checkbox" class="slot-checkbox" id="slot${i}" value="${slot}">
+                <label class="slot-label" for="slot${i}">${slot}</label>
+            `).join('');
+        }
+        
+        // 切換 Tab
+        function showTab(tabId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // 查詢空堂老師
+        function queryFreeTeachers() {
+            const day = document.getElementById('queryDay').value;
+            const start = parseInt(document.getElementById('queryStart').value);
+            const end = parseInt(document.getElementById('queryEnd').value);
+            
+            if (start > end) {
+                showMessage('queryResult', '起始節次不能大於結束節次', 'error');
+                return;
+            }
+            
+            const selected = [];
+            for (let i = start; i <= end; i++) {
+                selected.push(`${day} ${i}`);
+            }
+            
+            const allTeachers = Object.keys(scheduleData);
+            const busyTeachers = new Set();
+            const freeTeachers = new Set(allTeachers);
+            const busyDetails = {};  // teacher -> [busy slots with details]
+            
+            allTeachers.forEach(teacher => {
+                const slots = getSlots(teacher);
+                let isBusy = false;
+                
+                selected.forEach(slot => {
+                    const slotDay = slot.split(' ')[0];
+                    const slotPeriod = parseInt(slot.split(' ')[1]);
+                    
+                    slots.forEach(s => {
+                        const sDay = s.split(' ')[0];
+                        const sPeriodStr = s.split(' ')[1];
+                        const sPeriods = sPeriodStr.match(/\d+/g);
+                        if (sDay === slotDay && sPeriods) {
+                            sPeriods.forEach(p => {
+                                if (parseInt(p) === slotPeriod) {
+                                    busyTeachers.add(teacher);
+                                    freeTeachers.delete(teacher);
+                                    if (!busyDetails[teacher]) busyDetails[teacher] = [];
+                                    const detail = getSlotDetail(teacher, s);
+                                    if (detail && detail.course) {
+                                        busyDetails[teacher].push(detail.course);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+            
+            // Build busy teacher detail cards
+            const sortedBusy = Array.from(busyTeachers).sort();
+            let busyCardsHtml = '';
+            sortedBusy.forEach(teacher => {
+                const data = scheduleData[teacher];
+                // Collect all slots for this teacher on the selected day
+                const daySlots = [];
+                const dayStr = day;
+                if (data && !Array.isArray(data)) {
+                    // New format: { "週二 3": { course, class, room } }
+                    Object.keys(data).forEach(slot => {
+                        if (slot.startsWith(dayStr)) {
+                            const detail = data[slot];
+                            const periodMatch = slot.match(/週[一二三四五六日]\s+(\d+)/);
+                            const period = periodMatch ? periodMatch[1] : '';
+                            daySlots.push({
+                                slot: slot,
+                                period: parseInt(period),
+                                course: detail.course || '',
+                                classGroup: detail.class || '',
+                                room: detail.room || ''
+                            });
+                        }
+                    });
+                } else if (data && Array.isArray(data)) {
+                    // Old format: ["週二 3-4", ...]
+                    data.forEach(slot => {
+                        if (slot.startsWith(dayStr)) {
+                            daySlots.push({ slot: slot, period: 0, course: '', classGroup: '', room: '' });
+                        }
+                    });
+                }
+                // Sort by period
+                daySlots.sort((a, b) => a.period - b.period);
+                
+                let slotsHtml = '';
+                if (daySlots.length > 0) {
+                    slotsHtml = daySlots.map(s => {
+                        const periodLabel = s.period ? `第${s.period}節` : s.slot;
+                        const coursePart = s.course ? `<span class="busy-course">${s.course}</span>` : '';
+                        const infoParts = [];
+                        if (s.classGroup) infoParts.push(s.classGroup);
+                        if (s.room) infoParts.push(s.room);
+                        const infoPart = infoParts.length > 0 ? `<span class="busy-info">${infoParts.join(' | ')}</span>` : '';
+                        return `<div class="busy-class-item"><span class="busy-period">${periodLabel}</span>${coursePart}${infoPart}</div>`;
+                    }).join('');
+                }
+                
+                busyCardsHtml += `<div class="busy-detail-card"><div class="busy-teacher-name">👩‍🏫 ${teacher}</div>${slotsHtml}</div>`;
+            });
+
+            const resultDiv = document.getElementById('queryResult');
+            resultDiv.innerHTML = `
+                <div class="result-box free-result">
+                    <div class="result-title">✅ 空堂老師 (${day} 第${start}-${end}節)</div>
+                    <div class="teacher-list">
+                        ${freeTeachers.size > 0 ? 
+                            Array.from(freeTeachers).map(t => `<span class="teacher-tag free">${t}</span>`).join('') : 
+                            '<span>全部老師都有課</span>'}
+                    </div>
+                </div>
+                <div class="result-box busy-result" style="margin-top:15px;">
+                    <div class="result-title">📋 有課老師的 ${day} 課表</div>
+                    <div class="busy-list">
+                        ${busyTeachers.size > 0 ? busyCardsHtml : '<span style="color:#888">無</span>'}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 匯入 JSON
+        function importJSON() {
+            const textarea = document.getElementById('jsonInput');
+            const fileInput = document.getElementById('jsonFile');
+            
+            let jsonText = '';
+            
+            // 優先使用檔案
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    jsonText = e.target.result;
+                    processImport(jsonText);
+                };
+                reader.readAsText(fileInput.files[0]);
+                return;
+            }
+            
+            // 否則使用文字輸入
+            jsonText = textarea.value.trim();
+            if (!jsonText) {
+                showMessage('importMessage', '請貼上 JSON 或上傳檔案', 'error');
+                return;
+            }
+            
+            processImport(jsonText);
+        }
+        
+        function processImport(jsonText) {
+            try {
+                const imported = JSON.parse(jsonText);
+                
+                // 驗證格式
+                if (typeof imported !== 'object' || Array.isArray(imported)) {
+                    showMessage('importMessage', 'JSON 格式錯誤，需為物件', 'error');
+                    return;
+                }
+                
+                // 合併資料
+                let count = 0;
+                for (let name in imported) {
+                    scheduleData[name] = imported[name];
+                    count++;
+                }
+                
+                saveData();
+                renderAll();
+                
+                showMessage('importMessage', `✅ 已匯入 ${count} 位老師的課表（合併至現有資料）`, 'success');
+                document.getElementById('jsonInput').value = '';
+                document.getElementById('jsonFile').value = '';
+                
+            } catch(e) {
+                showMessage('importMessage', `JSON 解析錯誤: ${e.message}`, 'error');
+            }
+        }
+        
+        // 手動新增老師
+        function addTeacher() {
+            const name = document.getElementById('teacherName').value.trim();
+            const selectedSlots = Array.from(document.querySelectorAll('.slot-checkbox:checked'))
+                .map(cb => cb.value);
+            
+            if (!name) {
+                showMessage('addMessage', '請輸入老師姓名', 'error');
+                return;
+            }
+            
+            if (selectedSlots.length === 0) {
+                showMessage('addMessage', '請至少選擇一個時段', 'error');
+                return;
+            }
+            
+            // 舊格式儲存
+            scheduleData[name] = selectedSlots;
+            saveData();
+            
+            showMessage('addMessage', `✅ 已儲存 ${name} 的課表`, 'success');
+            document.getElementById('teacherName').value = '';
+            document.querySelectorAll('.slot-checkbox').forEach(cb => cb.checked = false);
+            
+            renderTeacherGrid();
+        }
+        
+        // 編輯老師
+        function editTeacher(name) {
+            // 跳到查看課表頁面，顯示完整課表供編輯
+            const slots = getSlots(name);
+            const detail = scheduleData[name];
+            
+            let jsonStr = '';
+            if (typeof detail === 'object' && !Array.isArray(detail)) {
+                jsonStr = JSON.stringify({[name]: detail}, null, 2);
+            } else {
+                jsonStr = JSON.stringify({[name]: detail}, null, 2);
+            }
+            
+            // 切到匯入 tab，並預填 JSON
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('import').classList.add('active');
+            document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            
+            document.getElementById('jsonInput').value = jsonStr;
+            showMessage('importMessage', `✏️ 編輯 ${name} 的課表 — 修改後點「匯入」覆蓋`, 'success');
+        }
+        
+        // 刪除老師
+        function deleteTeacher(name) {
+            document.getElementById('confirmText').textContent = `確定要刪除 ${name} 的課表嗎？`;
+            document.getElementById('confirmDialog').style.display = 'flex';
+            
+            document.getElementById('confirmAction').onclick = function() {
+                delete scheduleData[name];
+                saveData();
+                renderTeacherGrid();
+                closeConfirm();
+            };
+        }
+        
+        function closeConfirm() {
+            document.getElementById('confirmDialog').style.display = 'none';
+        }
+        
+        // 清除所有資料
+        function clearAllData() {
+            document.getElementById('confirmText').textContent = '確定要清除所有課表資料嗎？此操作無法復原！';
+            document.getElementById('confirmDialog').style.display = 'flex';
+            
+            document.getElementById('confirmAction').onclick = function() {
+                scheduleData = {};
+                saveData();
+                renderAll();
+                closeConfirm();
+                showMessage('importMessage', '🗑️ 已清除所有資料', 'success');
+            };
+        }
+        
+        // 顯示訊息
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => el.innerHTML = '', 4000);
+        }
+        
+        // 初始化
+        loadData();
+    </script>
+
+</body><div id="immersive-translate-popup" style="all: initial"></div></html>
